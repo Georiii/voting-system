@@ -6,7 +6,7 @@ void main() {
 
 class CampusEBallotApp extends StatelessWidget {
   const CampusEBallotApp({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -1598,5 +1598,514 @@ class SuccessScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// Profile data model
+class UserProfile {
+  String name;
+  String email;
+  String age;
+  String gender;
+  String contactNo;
+  String srCode;
+  String birthDate;
+  String department;
+  String program;
+
+  UserProfile({
+    this.name = '',
+    this.email = '',
+    this.age = '',
+    this.gender = '',
+    this.contactNo = '',
+    this.srCode = '',
+    this.birthDate = '',
+    this.department = '',
+    this.program = '',
+  });
+
+  // Convert to JSON for storage
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'email': email,
+      'age': age,
+      'gender': gender,
+      'contactNo': contactNo,
+      'srCode': srCode,
+      'birthDate': birthDate,
+      'department': department,
+      'program': program,
+    };
+  }
+
+  // Create from JSON
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      age: json['age'] ?? '',
+      gender: json['gender'] ?? '',
+      contactNo: json['contactNo'] ?? '',
+      srCode: json['srCode'] ?? '',
+      birthDate: json['birthDate'] ?? '',
+      department: json['department'] ?? '',
+      program: json['program'] ?? '',
+    );
+  }
+}
+
+// Profile Screen
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late UserProfile _profile;
+  
+  // Controllers for form fields
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _ageController = TextEditingController();
+  final _contactController = TextEditingController();
+  final _srCodeController = TextEditingController();
+  final _birthDateController = TextEditingController();
+  final _programController = TextEditingController();
+  
+  String _selectedGender = '';
+  String _selectedDepartment = '';
+  
+  // Dropdown options
+  final List<String> _genderOptions = ['Male', 'Female', 'Other'];
+  final List<String> _departmentOptions = [
+    'College of Engineering',
+    'College of Business',
+    'College of Arts and Sciences',
+    'College of Education',
+    'College of Agriculture',
+    'College of Medicine',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _profile = UserProfile();
+    _loadProfile();
+  }
+
+  void _loadProfile() {
+    // In a real app, you would load this from SharedPreferences or a database
+    // For now, we'll use default values
+    _nameController.text = _profile.name;
+    _emailController.text = _profile.email;
+    _ageController.text = _profile.age;
+    _contactController.text = _profile.contactNo;
+    _srCodeController.text = _profile.srCode;
+    _birthDateController.text = _profile.birthDate;
+    _programController.text = _profile.program;
+    _selectedGender = _profile.gender;
+    _selectedDepartment = _profile.department;
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        _birthDateController.text = "${picked.day}/${picked.month}/${picked.year}";
+      });
+    }
+  }
+
+  void _saveProfile() {
+    if (_formKey.currentState!.validate()) {
+      _profile.name = _nameController.text;
+      _profile.email = _emailController.text;
+      _profile.age = _ageController.text;
+      _profile.gender = _selectedGender;
+      _profile.contactNo = _contactController.text;
+      _profile.srCode = _srCodeController.text;
+      _profile.birthDate = _birthDateController.text;
+      _profile.department = _selectedDepartment;
+      _profile.program = _programController.text;
+
+      // In a real app, you would save this to SharedPreferences or a database
+      // For now, we'll just show a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Profile saved successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      
+      Navigator.pop(context);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.red, width: 2),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.school, color: Colors.red, size: 10),
+                  Text('BSU', style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 6,
+                  )),
+                ],
+              ),
+            ),
+            SizedBox(width: 8),
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: Colors.brown[800],
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.engineering,
+                color: Colors.orange,
+                size: 15,
+              ),
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Your Profile',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFFF4444),
+              Color(0xFFFF8844),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // Profile Picture Section
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.person,
+                        size: 60,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    
+                    // Name and Email Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _nameController,
+                            hint: 'Name',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your name';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _emailController,
+                            hint: 'Email',
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              if (!value.contains('@')) {
+                                return 'Please enter a valid email';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    
+                    // Age, Gender, Contact Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _ageController,
+                            hint: 'Age',
+                            keyboardType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your age';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: _buildDropdown(
+                            value: _selectedGender,
+                            hint: 'Gender',
+                            items: _genderOptions,
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedGender = value!;
+                              });
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _contactController,
+                            hint: 'Contact no.',
+                            keyboardType: TextInputType.phone,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your contact number';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    
+                    // SR-Code and Birth Date Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _srCodeController,
+                            hint: 'SR-Code',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your SR-Code';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: _buildDateField(),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 15),
+                    
+                    // Department Dropdown
+                    _buildDropdown(
+                      value: _selectedDepartment,
+                      hint: 'Choose Your Department',
+                      items: _departmentOptions,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedDepartment = value!;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 15),
+                    
+                    // Program Field
+                    _buildTextField(
+                      controller: _programController,
+                      hint: 'Program (ex. BS Information Technology)',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your program';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 40),
+                    
+                    // Save Button
+                    ElevatedButton(
+                      onPressed: _saveProfile,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child: Text(
+                        'Save',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        validator: validator,
+        decoration: InputDecoration(
+          hintText: hint,
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.all(12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdown({
+    required String value,
+    required String hint,
+    required List<String> items,
+    required void Function(String?) onChanged,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: value.isEmpty ? null : value,
+        hint: Text(hint),
+        items: items.map((String item) {
+          return DropdownMenuItem<String>(
+            value: item,
+            child: Text(item),
+          );
+        }).toList(),
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.all(12),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select $hint';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _buildDateField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.8),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: TextFormField(
+        controller: _birthDateController,
+        readOnly: true,
+        onTap: () => _selectDate(context),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select your birth date';
+          }
+          return null;
+        },
+        decoration: InputDecoration(
+          hintText: 'Birth Date',
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.all(12),
+          suffixIcon: Icon(Icons.calendar_today, color: Colors.grey[600]),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _ageController.dispose();
+    _contactController.dispose();
+    _srCodeController.dispose();
+    _birthDateController.dispose();
+    _programController.dispose();
+    super.dispose();
   }
 }
